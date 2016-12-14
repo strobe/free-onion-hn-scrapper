@@ -1,6 +1,8 @@
-//scalaOrganization in ThisBuild := "org.typelevel"
+mainClass in (Compile, run) := Some("default.freeOnionHNScrapper.MainApp")
 
-//scalaVersion := "2.12.0"
+// H2 web console
+val h2ConsoleTask = taskKey[Unit]("Started H2 Web Console")
+h2ConsoleTask := (runMain in Compile).toTask(" default.freeOnionHNScrapper.H2ConsoleApp").value
 
 lazy val freeOnionHNScrapper = project
   .in(file("."))
@@ -10,8 +12,6 @@ libraryDependencies ++= Vector(
   Library.scalaXml,
   Library.scalaTest % "test",
   Library.cats,
-//  Library.scalaScrapper,
-//  Library.httpc,
   Library.scalajHttp,
   Library.monixEval,
   Library.monixCats,
@@ -22,7 +22,6 @@ libraryDependencies ++= Vector(
   Library.scalalikejdbcConfig,
   Library.h2,
   Library.logback
-  //Library.si2712fix
 )
 
 initialCommands := """|import default.freeOnionHNScrapper._
@@ -33,9 +32,6 @@ initialCommands := """|import default.freeOnionHNScrapper._
 resolvers += Resolver.sonatypeRepo("releases")
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
-
-// if your project uses multiple Scala versions, use this for cross building
-//addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
 
 // if your project uses both 2.10 and polymorphic lambdas
 libraryDependencies ++= (scalaBinaryVersion.value match {

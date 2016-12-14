@@ -28,7 +28,7 @@ import scalikejdbc.config._
   * Created by Evgeniy Tokarev on 11/12/2016.
   */
 trait DDL {
-  def dbInit()(implicit session: DBSession = AutoSession) = {
+  def dbInit()(implicit session: DBSession = AutoSession): Unit = {
     DBs.setupAll()
 
     val query = Try {
@@ -47,7 +47,7 @@ trait DDL {
     }
   }
 
-  def dbClose()(implicit session: DBSession = AutoSession) = {
+  def dbClose()(implicit session: DBSession = AutoSession): Unit = {
     DBs.closeAll() // wipes out ConnectionPool
   }
 }
