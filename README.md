@@ -20,7 +20,7 @@ Goal of this project demonstrate composition of free monad DSLs at minimal reaso
 
 DSLs defined as:
 
-```
+```scala
   sealed trait CoreDSL[A]
   object CoreDSL {
     case class GetYCNews(url: String) extends CoreDSL[NonEmptyList[PieceOfNews]]
@@ -36,14 +36,14 @@ DSLs defined as:
 
 Basic composition of DSLs looks like this (it produced CoProduct):
 
-```
+```scala
   type CoreAndDbDSL = CoreDSL :|: DbDSL :|: NilDSL
   val CoreAndDbDSL = DSL.Make[CoreAndDbDSL]
 ```
 
 Free program defined as:
 
-```
+```scala
   def program(url: String, minScore: Int) = {
     for {
       list     <- CoreDSL.GetYCNews(url).freek[CoreAndDbDSL]
@@ -56,7 +56,7 @@ Free program defined as:
 Some part of app  may be implemented in terms of other Free program. Key for this is a
 `tranpiler` interpreter with `replace` and `transpile` operations (provided by Freek lib.).
 
-```
+```scala
   val transpileNat = CopKNat[CoreAndDbDSL.Cop].replace(HttpSubProgram.transpiler)
   val freeProgram  = MainProgram.program("https://news.ycombinator.com", 10).transpile(transpileNat)
 
@@ -83,7 +83,7 @@ Some part of app  may be implemented in terms of other Free program. Key for thi
 
 Interpreters defined like this:
 
-```
+```scala
   val dbDsl2Task = new (DbDSL ~> Task) {
     def apply[A](fa: DbDSL[A]): Task[A] = fa match {
       case DbDSL.Save(items) =>
@@ -94,14 +94,14 @@ Interpreters defined like this:
 
 Composition and usage of interpreters:
 
-```
+```scala
   val finalInterpreter                              = dbDsl2Task :&: httpWLog2Task
   val finalProgram: Task[NonEmptyList[PieceOfNews]] = freeProgram.interpret(finalInterpreter)
 ```
 
 Different kind of interpreters composition is possible by ignoring/combining results of few interpreters inside new one:
 
-```
+```scala
   // it merging http2log and http2task by ignoring (http2log->log2task) result
   val httpWLog2Task = new (HttpDSL ~> Task) {
     override def apply[A](fa: HttpDSL[A]): Task[A] = {
